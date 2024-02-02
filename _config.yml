@@ -18,16 +18,15 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Notes
-email: rotovapp@gmail.com 
+title: ""
+# email: rotovapp@gmail.com 
+email: github.com/rotovap
 description: >- # this means to ignore newlines until "baseurl:"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: jekyllrb
-github_username:  jekyll
-# repository: rotovap/rotovap.github.io
+twitter_username: ""
+github_username:  rotovap
 
-# Build settings
 # Build settings
 remote_theme: huangyz0918/moving
 plugins:
