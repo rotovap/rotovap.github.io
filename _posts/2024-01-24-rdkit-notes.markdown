@@ -217,3 +217,11 @@ it seems the python rdkit and the postgres rdkit pkl are the same and the one th
 Also when running mol_from_smiles in duckdb several times, each output hex is different...
 
 maybe I am actually getting the memory address of the mol instead of the pickled mol. This would explain why I get a different value on each run
+
+### the postgres scanner in duckdb
+
+Info here: https://duckdb.org/2022/09/30/postgres-scanner.html
+
+uses a binary transfer mode to be faster than the normal way of sending data through client to server.
+Can be faster than postgres itself, but fastest is doing everything in duckdb, but that requires transferring
+the data to duckdb first.
