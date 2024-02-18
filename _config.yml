@@ -18,21 +18,24 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: ""
-# email: rotovapp@gmail.com 
-email: github.com/rotovap
+title: My notes
+email: rotovapp@gmail.com 
 description: >- # this means to ignore newlines until "baseurl:"
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: ""
 github_username:  rotovap
 
 # Build settings
-remote_theme: huangyz0918/moving
+theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-seo-tag
+minima:
+  skin: classic
 
-# Exclude from processing.
+header_pages:
+  - about.md
+# remote_theme: huangyz0918/moving
+# plugins:
+#   - jekyll-feed
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
 # the internal "default list".

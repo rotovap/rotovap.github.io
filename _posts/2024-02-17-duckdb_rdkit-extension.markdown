@@ -1,19 +1,14 @@
-# duckdb RDKit extension
-
-I have been trying to build an extension for [duckdb] that gives it the ability
+I have been trying to build an extension ([duckdb_rdkit]) for [duckdb] that gives it the ability
 to do cheminformatic work via [RDKit].
 
-It's been a challenge for me, but it's encouraging to make some progress.
+I've been following and learning from the duckdb extension [spatial],
+the sqlite3 extension [chemicalite], as well as the RDKit Postgres extension
+as a pattern for building the extension. Many thanks to their work.
 
-I've been following the duckdb extension [spatial], and the sqlite3 extension
-[chemicalite], as well as the RDKit Postgres extension as a pattern for building
-the extension. Many thanks to their work.
+## Working with molecules in a computer
 
-## cheminformatics work
-
-Working with molecules requires some special handling. I won't go into details
-here since I'm not an expert and there are much better resources out there
-([Daylight], or [depth first blog])
+Working with molecules requires some special handling. Here are some nice resources
+that go into more details: [Daylight], or [depth first blog].
 
 As a quick example, a molecule is a three dimensional dynamic structure in reality
 but we often draw it on paper like a 2D graph with nodes being the atoms and
@@ -25,14 +20,12 @@ This string can be parsed and an object with information about the molecule
 deduced.
 
 For example, in RDKit, you can use a function like `MolFromSmiles('c1ccccc1')`  
-to get a RDKit molecule object.
+to get a RDKit molecule object. The object contains all kinds of information,
+for example you could get the molecular weight, the number of atoms, and much
+more. Importantly, you can do structure comparisons, for example checking if
+two molecules are equal. RDKit offers a lot of functionality.
 
-Now with this, you can do stuff like get the molecular weight or other descriptors
-for the molecule, and also do structure comparisons, for example checking if
-two molecules are equal.
-Anyhow, there's many many other functionality that RDKit offers.
-
-## background
+## Some background
 
 Database management systems (DBMS) do not usually have chemistry functionality in them.
 Extensions like the RDKit Postgres extension allows a user to get cheminformatic
@@ -48,18 +41,19 @@ useful to others who may want to do cheminformatic analyses in duckdb.
 Through working on this extension, I've already learned a lot of new things.
 
 I had used RDKit heavily in Python in the past for years, but never dove into
-the inner workings. Working on this project forced me to take a closer look
+the inner workings. Working on this project brought me to take a closer look
 into RDKit's internals on the Molecule object. I also learned more about how
-duckdb is working. It's also my first C++ project, and it intimidated me.
-It took me a while to figure out how to build duckdb with RDKit with
-CMake and make, and eventually it compiled.
+duckdb is working. It's also my first C++ project, which intimidated me.
+It took me a while to figure out how to even build duckdb with RDKit using
+CMake and make, but eventually I got somewhere and it compiled.
 
-I'm a novice in all these topics, and there's much more to learn, but it's been
-cool to learn what I have so far learned. With that, my disclaimer is that the way I've
-implemented things could be/are, the most naive ways to do it, and probably
-far from optimal.
+I'm a novice in all these topics, and there's much more to learn.
+Nevertheless, I wanted
+to write down what I learned so far here.
+With that, my disclaimer is that the way I've
+implemented things could be/are, the most naive ways to do it.
 
-## integrating RDKit with duckdb
+## Integrating RDKit with duckdb
 
 In order to give duckdb RDKit functionality, I first created a new type for the
 RDKit molecule, Mol. Then, I created functions using RDKit to convert from SMILES to Mol
@@ -67,7 +61,7 @@ and to serialize the Mol, etc. After that, I wrapped around those functions with
 duckdb functions so that that the RDKit functionality can be called in the duckdb
 system.
 
-### the Mol type
+### The Mol type
 
 First, duckdb needs to know what a Molecule is.
 
@@ -100,16 +94,12 @@ void RegisterTypes(DatabaseInstance &instance) {
 
 ```
 
-### converting between strings to Mol to binary and back
+### Converting between strings to Mol to binary and back
 
-Functions for the extension to convert from a SMILES format to Mol were implemented
-in duckdb by wrapping around the RDKit functions.
+First, I made functions wrapping RDKit, and then called these functions with
+code from duckdb that allows this RDKit functionality to work in the duckdb system.
 
-For example, there is a static function I made for converting from `std::string`
-to a molecule object, `rdkit_mol_from_smiles`. This wraps around RDKit, and is
-used later when creating a function callable from duckdb.
-
-#### converting from SMILES to Mol
+#### Converting from SMILES to Mol
 
 I first tried to implement converting the SMILES to Mol in this way:
 
@@ -123,12 +113,12 @@ with about 2.3 million rows with molecular structures, the process running
 duckdb would get killed after a while.
 I eventually figured out that this way of converting SMILES to Mol causes a memory leak.
 
-I wrote some simple programs and running them with valgrind to experiment with
-how I should properly use RDKit to not get a memory leak.
+I wrote some simple programs and ran them with valgrind to experiment with
+how I should properly use RDKit so that I wouldn't get a memory leak.
 Running the above with valgrind showed that there were bytes definitely lost
 and indirectly lost.
-I tried deleting the object after I was done with it, but still ran into issues
-with that.
+I tried deleting the object after I was done with it, but still ran into different
+issues with that approach.
 
 To fix this, I followed the pattern set by chemicalite and used a `std::unique_ptr`
 and reset the unique_ptr with the `RDKit::ROMol` pointer that is returned by
@@ -139,12 +129,13 @@ std::unique_ptr<RDKit::ROMol> mol;
 mol.reset(RDKit::SmilesToMol(smiles));
 ```
 
-Maybe obvious that I should have taken this approach earlier, but I found it
-helpful to experiment with the approaches and wrap my head around RDKit and C++.
+After the fact, it seems obvious I should have used smart pointers to begin with,
+but I found it helpful to experiment with the approaches and wrap my head around
+RDKit and C++.
 
 This removed one source of the memory leak.
 
-#### serializing and deserialzing Mol
+#### Serializing and deserialzing Mol
 
 After creating the RDKit Mol, I wanted to serialize the object to binary so
 that it could be stored as a BLOB in duckdb. Serializing the object was quite
@@ -164,7 +155,7 @@ RDKit::MolPickler::molFromPickle(pickle, mol1);
 First the molecule object, `mol1` is serialized by `RDKit::MolPickler::pickleMol`
 and stored in `pickle`. When I deserialize `pickle` with `molFromPickle`,
 I found memory leaks with valgrind. I again tried deleting `mol1` but it didn't
-solve my problems, maybe I did it incorrectly?
+solve my problems. Maybe I did it incorrectly?
 
 The other way to do it, again following chemicalite is as follows:
 
@@ -184,15 +175,17 @@ RDKit::MolPickler::molFromPickle(pickle, *mol2);
 ```
 
 These changes along with the above solved the memory leak errors.
-After building other functions, the extension could process the 2.3 molecules,
+After building other functions, the extension could process the 2.3 million molecules,
 and run some custom functions, which I will describe below, on those molecules
 without running out of memory.
 
-### calling these function from duckdb
+### Calling these function from duckdb
 
 The above functions just wrap around RDKit, but are not callable from duckdb yet.
-Functions callable by duckdb need to work within the duckdb system, for example,
+Functions callable by duckdb need to work within the duckdb system. For example,
 they may need to know how to accept DataChunks from duckdb and work with duckdb Vectors.
+
+I think of it like putting the RDKit code into a container that duckdb recognizes.
 
 Watching [this talk from Mark Raasveldt on duckdb internals] helped me get a little
 better understanding on how duckdb works, but there is a lot I don't quite get yet,
@@ -234,12 +227,12 @@ string type, and then here I can call the functions I wrote early that wraps
 RDKit functions, `rdkit_mol_from_smiles` to create the molecule object, and then
 `rdkit_mol_to_binary_mol` to serialize that object.
 
-#### bad pickle format problem
+#### Bad pickle format problem
 
-I ran into a problem where when I tried to unpickle the binary molecule in
-`rdkit_binary_mol_to_mol` with RDKit, I got a bad pickle format error.
+I ran into a problem where when I tried to deserialize the binary molecule with
+RDKit, I got a bad pickle format error.
 
-Logging the binary that was created from pickling the Mol, I found that every time
+Logging the binary that was created from serializing the Mol, I found that every time
 I ran the function, I got a different hex representation back.
 I struggled with this error for some time, and experimented with simple
 RDKit programs without duckdb to check if I was seeing this from RDKit. I also
@@ -255,26 +248,27 @@ by duckdb. It reminded me of the portion of the duckdb internal talk on strings
 and how duckdb can quickly filter out strings by attaching some bytes of a string
 to the front of this representation, allowing it to quickly check if the first
 part of a string matches a query without doing more costly fetching of the
-string. (I think that's what the presenter meant)
+string. (If I understood it correctly)
 
 Anyhow, now with a StringVector being returned, things started working.
 
-### is_exact_match
+### is_exact_match()
 
 It's not interesting to just have a binary molecule in the DB. We want to be able
 to do interesting stuff with that binary molecule, for example, finding if
 there are certain molecules in our data.
 
-The `is_exact_match(mol1, mol2)` returns a boolean indicating if the two molecules
-being compared are the same.
+The `is_exact_match(mol1, mol2)` function returns a boolean indicating if the
+two molecules being compared are the same.
 
-You can't just compare strings, see [depth first blog] for more information.
+Long story short, simply comparing strings is not going to work
+(see [depth first blog] for more information).
 For example, `Cc1ccccc1` and `c1ccccc1C` are the same molecule, toluene.
-A string comparison on SMILES won't work. There's more [issues] in comparing molecules.
+There's actually several more [issues] to consider when comparing molecules.
 
-To implement is_exact_match, I followed the chemicalite code to
+To implement is_exact_match, I followed (copied) the chemicalite code to
 compare two molecules, which is also similar to the Postgres RDKit extension
-code, and just altered the return type to a boolean.
+code, and I just altered the return type to a boolean.
 
 To create the duckdb function, I have the following:
 
@@ -291,10 +285,6 @@ static void is_exact_match(DataChunk &args, ExpressionState &state,
       left, right, result, args.size(),
       [&](string_t &left_blob, string_t &right_blob) {
         // need to first deserialize the blob which is stored in the DB
-        // NOTE: is it possible to run some of the search on the binary mol?
-        // for example, comparing MW. Is this stored in the binary,
-        // and is it possible to jump to the offset where that info is stored
-        // and run the comparison of there?
         std::unique_ptr<RDKit::ROMol> left_mol(new RDKit::ROMol());
         std::unique_ptr<RDKit::ROMol> right_mol(new RDKit::ROMol());
 
@@ -306,6 +296,12 @@ static void is_exact_match(DataChunk &args, ExpressionState &state,
 
 ```
 
+This `BinaryExecutor` will take a left and right `string_t`, which should be a
+binary molecule, and then deserialize it to a molecule object.
+
+From there, the molecule comparison function, `mol_cmp` can be run to see if the
+two molecules are the same.
+
 This works, but in my tests on chembl, it's much slower than the Postgres extension. Adding
 an index to the molecule column didn't help, and I confirmed that duckdb is really
 fast on a different column, without an index, that is just an integer. This
@@ -314,12 +310,12 @@ suggests that there is a problem with my is_exact_match implementation.
 For a query `is_exact_match(molecule_column, 'CCC')`, the right side molecule is
 not changing.
 First, the VARCHAR is converted to a Mol, then to a binary molecule because
-my BinaryExecutor code expects a binary molecule.
-Then in my BinaryExecutor code, I need to deserialize the blob back to a molecule,
+the code in BinaryExecutor expects a binary molecule.
+Then, I need to deserialize the blob back to a molecule,
 and then I run the compare code.
-So, for the right side, there would be VARCHAR -> Mol -> binary -> Mol -> compare,
-and this would happen everytime the execute function is ran, which I guess is a lot if there's
-2.3 million tuples.
+So, for the right side, there would be these steps: VARCHAR -> Mol -> binary -> Mol -> compare,
+and this would happen everytime the execute function is ran, which I guess is a
+lot if there's 2.3 million tuples.
 
 It would be better to just calculate the molecule once for the unchanging `CCC`,
 and use that Mol object for all the comparisons. In a simple program, this is not
@@ -327,10 +323,12 @@ difficult; just convert the SMILES outside a for loop and store it in a variable
 Then re-use that.
 
 In duckdb, I'm not sure how to do that.
-So I went to the discord and asked for some help. That is where I left off.
+So I went to the discord and asked for some help. I got a few suggestions of
+how I might optimize this code. That is where I left off.
 
 Thanks for reading.
 
+[duckdb_rdkit]: https://github.com/rotovap/duckdb_rdkit
 [duckdb]: https://duckdb.org/
 [RDKit]: https://www.rdkit.org/docs/Overview.html
 [spatial]: https://github.com/duckdb/duckdb_spatial
