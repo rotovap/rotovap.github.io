@@ -1,2 +1,0 @@
-needed to run: `bundle add webrick` before `bundle exec jekyll serve`
-could be run to test the site locally
