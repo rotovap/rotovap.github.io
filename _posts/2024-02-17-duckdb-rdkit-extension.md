@@ -3,7 +3,7 @@ layout: post
 title: rdkit extension for duckdb
 description: ""
 summary: ""
-tags: [projects]
+tags: [projects, databases]
 ---
 
 I have been trying to build an extension ([duckdb_rdkit]) for [duckdb] that gives it the ability
