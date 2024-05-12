@@ -1,11 +1,3 @@
----
-layout: post
-title: rdkit extension for duckdb
-description:
-summary:
-tags: [projects]
----
-
 I have been trying to build an extension ([duckdb_rdkit]) for [duckdb] that gives it the ability
 to do cheminformatic work via [RDKit].
 
