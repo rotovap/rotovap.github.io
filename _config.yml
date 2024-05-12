@@ -66,10 +66,4 @@ defaults:
       type: "posts"
     values:
       layout: "post"
-  -
-    scope:
-      path: ""
-      type: "notes"
-    values:
-      layout: "post"
 
