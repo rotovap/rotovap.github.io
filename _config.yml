@@ -63,6 +63,12 @@ defaults:
   -
     scope:
       path: ""
+      type: "notes"
+    values:
+      layout: "note"
+  -
+    scope:
+      path: ""
       type: "posts"
     values:
       layout: "post"
