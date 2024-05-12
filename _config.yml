@@ -29,7 +29,7 @@ compress_html:
 
 sass:
   sass_dir: _sass
-  style: compressed
+  style: :compressed
 
 plugins:
   - jekyll-feed
