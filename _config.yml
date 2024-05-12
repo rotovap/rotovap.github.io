@@ -1,17 +1,17 @@
 remote_theme: ronv/sidey
 
-site: Sidey
-url: #yoururl
-title: Sidey
-description: Simple and minimalistic jekyll blogging theme.
+site: rotovap.github.io 
+url: rotovap.github.io
+title: ""
+description: "" 
 twitter:
   username: #yourusername
-  card: summary
+  card: #
   creator: #yourusername
 author:
   twitter: #yourusername
   name: #yourusername
-  avatar:
+  avatar: #
   email: #youremail
   url: #yoururl
 permalink: pretty
