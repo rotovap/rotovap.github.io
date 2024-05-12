@@ -1,7 +1,7 @@
 remote_theme: ronv/sidey
 
 site: rotovap.github.io 
-url: rotovap.github.io
+url: #yoururl 
 title: ""
 description: "" 
 twitter:
