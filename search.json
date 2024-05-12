@@ -3,27 +3,28 @@ layout: null
 ---
 [
   {% for post in site.notes %}
-    {
+  {
 
-      "title"    : "{{ post.title | strip_html | escape }}",
-      "description" : "{{ post.description | escape }}",
-      "url"      : "{{ site.baseurl }}{{ post.url }}",
-      "category" : "{{post.categories | join: ', '}}",
-      "tags"     : "{{ post.tags | join: ', ' }}",
-      "date"     : "{{ post.date }}"
+    "title"    : "{{ post.title | strip_html | escape }}",
+    "description" : "{{ post.description | escape }}",
+    "url"      : "{{ site.baseurl }}{{ post.url }}",
+    "category" : "{{post.categories | join: ', '}}",
+    "tags"     : "{{ post.tags | join: ', ' }}",
+    "date"     : "{{ post.date }}"
 
-    } {% unless forloop.last %},{% endunless %}
-  {% endfor %}
-  {% for post in site.posts %}
-    {
+  } {% unless forloop.last %},{% endunless %}
+{% endfor %}
+  | concat:
+{% for post in site.posts %}
+  {
 
-      "title"    : "{{ post.title | strip_html | escape }}",
-      "description" : "{{ post.description | escape }}",
-      "url"      : "{{ site.baseurl }}{{ post.url }}",
-      "category" : "{{post.categories | join: ', '}}",
-      "tags"     : "{{ post.tags | join: ', ' }}",
-      "date"     : "{{ post.date }}"
+    "title"    : "{{ post.title | strip_html | escape }}",
+    "description" : "{{ post.description | escape }}",
+    "url"      : "{{ site.baseurl }}{{ post.url }}",
+    "category" : "{{post.categories | join: ', '}}",
+    "tags"     : "{{ post.tags | join: ', ' }}",
+    "date"     : "{{ post.date }}"
 
-    } {% unless forloop.last %},{% endunless %}
-  {% endfor %}
+  } {% unless forloop.last %},{% endunless %}
+{% endfor %}
 ]
