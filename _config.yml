@@ -44,6 +44,9 @@ collections:
   posts:
     output: true
     permalink: /:year/:month/:day/:slug
+  notes:
+    output: true
+    permalink: /:year/:month/:day/:slug
   
 defaults:
   -
