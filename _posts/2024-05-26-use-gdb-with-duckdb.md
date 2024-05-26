@@ -59,8 +59,8 @@ duckdb::shared_ptr<duckdb::ClientContext, true>::operator-> (this=0x7fffffffdc80
 (gdb) finish
 ```
 
-- Here I needed to use `finish` and not `s` when the debugger was in the `shared_ptr_ipp.hpp` code, in order to continue on.
-  If I kept using `s` it would not go deeper into the function and into `context->Query`
+- Here I needed to use `finish` and not `n` when the debugger was in the `shared_ptr_ipp.hpp` code, in order to continue on.
+  If I kept using `n` it would not go deeper into the function and into `context->Query`
 
 ```gdb
 91		auto result = context->Query(query, false);
