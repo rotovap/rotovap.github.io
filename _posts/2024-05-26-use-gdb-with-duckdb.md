@@ -1,3 +1,11 @@
+---
+layout: post
+title: use gdb with duckdb
+description: ""
+summary: ""
+tags: [duckdb, databases]
+---
+
 # How to debug and walk through duckdb code
 
 I am using g++ (GNU 11.3.0). I had some issues with clang
