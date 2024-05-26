@@ -6,8 +6,6 @@ summary: ""
 tags: [duckdb, databases]
 ---
 
-# How to debug and walk through duckdb code
-
 I am using GNU 11.3.0. I had some issues with clang
 
 Code is in `examples/embedded-c++/main.cpp`. Will use this to enter the Query function
