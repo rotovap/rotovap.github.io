@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Lakehouse\:\  A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics (M. Armbrust, et al., CIDR 2021)
+title: Lakehouse:  A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics (M. Armbrust, et al., CIDR 2021)
 description: ""
 summary: ""
 tags: [databases, notes, lakehouse]
