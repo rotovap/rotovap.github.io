@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Lakehouse (M. Armbrust, et al., CIDR 2021)
+title: Lakehouse - M. Armbrust, et al., CIDR 2021
 description: ""
 summary: ""
 tags: [databases, notes, lakehouse]
