@@ -33,4 +33,4 @@ Lakehouse: A New Generation of Open Platforms that Unify Data Warehousing and Ad
 
 - Workloads/Benchmarks
 
-  - They tested the test duration and cost to run the tests on TPC-DS at a scale factor of 30,000 with four widely used cloud data warehouses on AWS, Azure, and GCP
+  - They tested the test duration and cost to run the tests in TPC-DS at a scale factor of 30,000 with four widely used cloud data warehouses on AWS, Azure, and GCP
